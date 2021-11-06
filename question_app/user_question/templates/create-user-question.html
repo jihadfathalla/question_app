@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>سؤال App</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" integrity="sha256-Uv9BNBucvCPipKQ2NS9wYpJmi8DTOEfTA/nH2aoJALw=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" integrity="sha256-aa0xaJgmK/X74WM224KMQeNQC2xYKwlAt08oZqjeF0E=" crossorigin="anonymous" />
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+
+
+</head>
+
+<body>
+
+  <div class="container" style="text-align: right;">
+    <form method="post" id="myform" validate-question-data-url="{% url 'question:user-data' %}">
+      {% csrf_token %}
+      
+
+
+      <h2 style="text-align: right;"> سؤال App</h2>
+      <p style="text-align: right;">تفضل بملئ البيانات</p>
+      <h5 id="message" style="color: red;">
+      قم بإدخال الاسم و رقم موبيلك على الأقل
+      </h5>
+
+      <div class="center" style="text-align: right; margin-right: 0%;">
+        <ul class="nav nav-pills">
+          <li><a onclick="view_answers()" href="#">النتائج</a></li>
+          <li><a onclick="view_question()" href="#">الأسئلة</a></li>
+          <li class="active"><a onclick="view_user()" href="#">البيانات الشخصية</a></li>
+        </ul>
+      </div>
+
+      <div class="data" style="display: none;">
+        <p id="an_one">{{an_one}}</p>
+        <p id="an_two">{{an_two}}</p>
+        <p id="an_three">{{an_three}}</p>
+       
+        <p id="an_one_count">{{an_one_count}}</p>
+        <p id="an_two_count">{{an_two_count}}</p>
+        <p id="an_three_count">{{an_three_count}}</p>
+      </div>
+
+
+
+
+
+
+      <div class="tab-content" style="text-align: right;">
+        <div class="user" style="display: block;" id="user">
+          <div class="row" style="margin-left:0px;">
+            <form method="POST" class="col-md-6 mb-0" id="myform">
+              {% csrf_token %}
+              <div class="form-row" style="text-align: right;">
+                <div class="form-group col-md-12">
+                  <label> <span style="color: red;">*</span>{{ user_form.name.label }}</label>
+                  {{ user_form.name }}
+                </div>
+                <div class="form-group col-md-12">
+                  <label><span style="color: red;">*</span>{{ user_form.mobile.label }}</label>
+                  {{ user_form.mobile }}
+                </div>
+                <div class="form-group col-md-12">
+                  <label>{{ user_form.address.label }}</label>
+                  {{ user_form.address }}
+                </div>
+                <div class="form-group col-md-12">
+                  <label>الجنسية</label>
+                  {{ user_form.country }}
+                </div>
+                <div class="form-group col-md-12">
+                  <label class="fw-500">{{ user_form.date_of_birth.label }}</label>
+                  <div class="timepicker-input input-icon form-group">
+                    <div class="input-group">
+                      <div class="input-group-addon bgc-white bd bdwR-0">
+                        <i class="ti-calendar"></i>
+                      </div>
+                      {{ user_form.date_of_birth}}
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group col-md-12">
+                  <label>{{ user_form.gender.label }} <span class="red_star">*</span></label>
+                  {{ user_form.gender }}
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="question" style="display: none;" id="question">
+          <div class="row" style="margin-left:0px;">
+            <div class="form-row" style="text-align: right;">
+
+              <div class="form-group col-md-12" id="question_two">
+                <span id="question_2" style="display: none;"></span>
+                <h6 id="question_22" style="text-align: center; font-size:30px;"></h6>
+              </div>
+
+              <table id="example" class="display" style="width:100%">
+                <tbody>
+                  <div id="tr_two">
+                  </div>
+                  <p id="employee" style="display: none;"></p>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      <div id="chart" style="display: none;">
+        <canvas id="myChart" height="416" style="display: block; width: 568px; height: 416px;" width="568"
+        class="chartjs-render-monitor"></canvas>  
+
+      </div>
+
+
+
+
+
+
+      </div>
+
+      <div class="col-md-4" style="text-align: left;">
+            <button id="form_submit" type="submit" onclick="submit(event)" class="btn btn-primary">إرسال</button>
+      </div>
+
+    </form>
+  </div>
+
+
+  <script>
+    var answers_arr = []
+
+    function view_user() {
+      document.getElementById('user').style.display = 'block';
+      document.getElementById('question').style.display = 'none';
+    }
+
+    function view_question() {
+      data = save_user_data()
+      document.getElementById('user').style.display = 'none';
+      document.getElementById('question').style.display = 'block';
+    }
+
+
+    function get_answers(answer) {
+      element = document.getElementById(answer)
+      answer_a = element.value
+      if (answers_arr.includes(answer_a)) { answers_arr.pop(answer_a) }
+      else { answers_arr.push(answer_a) }
+      return answers_arr
+    }
+
+
+    function save_user_data(e) {
+      answers_arr
+      data = {
+        'name': document.getElementById('id_name').value,
+        'mobile': document.getElementById('id_mobile').value,
+        'nationality': document.getElementById('id_country').value,
+        'date': document.getElementById('id_date_of_birth').value,
+        'type': document.getElementById('id_gender').value,
+        'address': document.getElementById('id_address').value
+      }
+      var url = $('#myform').attr("validate-question-data-url")
+      $.ajax({
+        type: 'get',
+        url: url,
+        dataType: "json",
+        contentType: "application/json",
+        data: data,
+        success: function (result) {
+          if (result.message == 'success') {
+            user = result.user
+            question_id = result.question_id
+            question_name = result.question_name
+            answers = result.answers
+            answers_list = answers.split(','); // split array with (,)
+
+            var html = '';
+            var td = '';
+
+
+            // Loop through each answer and create a list item
+            answers_list.forEach(function (answer) {
+              arr = answer.split(":")
+
+              // += adds an item to the existing value 
+              // It's the same as writing this:
+              answer_id = parseInt(arr[0]);
+              td += '<li style="text-align: right;">' + arr[1] + '<input value="' + answer_id + '"' + " " + 'id=' + "'" + answer_id + "'" + 'type="checkbox"  onclick="get_answers(' + answer_id + ')"' + 'type="checkbox"  name="checkbox" id="checkbox" >' + "</li>"
+              // Wrap items in an unordered list
+              table = '<ul>' + td + '</ul>';
+            })
+
+            document.getElementById('tr_two').style.display = 'block';
+            document.getElementById('message').style.display = 'none';
+
+            document.getElementById('tr_two').innerHTML = table;
+
+
+            document.getElementById('question_2').innerHTML = question_id
+            document.getElementById('question_22').innerHTML = question_name
+            document.getElementById('employee').innerHTML = user
+          }
+          else{
+              document.getElementById('message').innerHTML = result.message;
+          }
+        }
+      });
+    }
+
+    function submit() {
+      console.log(answers_arr)
+      data = {
+        'answers': answers_arr,
+        'employee_id': document.getElementById('employee').innerHTML,
+        'question_id': document.getElementById('question_2').innerHTML
+      }
+      $.ajax({
+        type: 'get',
+        url: '/user/answers/',
+        dataType: "json",
+        contentType: "application/json",
+        data: data,
+        success: function (result) {
+          if (result.message == 'success') { }
+          else {
+            document.getElementById('message').innerHTML = result.message
+          }
+        }
+      })
+    }
+
+  function view_answers(){
+    answer_one = document.getElementById('an_one').innerHTML
+    answer_two = document.getElementById('an_two').innerHTML
+    answer_three = document.getElementById('an_three').innerHTML
+
+    answer_one_count = document.getElementById('an_one_count').innerHTML
+    answer_two_count = document.getElementById('an_two_count').innerHTML
+    answer_three_count  =document.getElementById('an_three_count').innerHTML
+    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+    document.getElementById('user').style.display = 'none';
+    document.getElementById('question').style.display = 'none';
+    document.getElementById('chart').style.display = 'block';
+   var ctx = document.getElementById("myChart");
+   var myChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+         labels: [answer_one , answer_two, answer_three],
+         datasets: [{
+            label: '# of labels',
+            data: [answer_one_count, answer_two_count, answer_three_count],
+            backgroundColor: [
+               '#ff6384',
+               '#36a2eb',
+               '#ff9f40',
+               '#ffcd56'
+            ],
+            borderWidth: 1
+         }]
+      },
+      options: {
+         //cutoutPercentage: 40,
+         responsive: false,
+
+      }
+   });
+  }
+</script>         
+</body>
+
+</html>
