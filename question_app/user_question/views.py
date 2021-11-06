@@ -42,11 +42,11 @@ def save_user_date(request):
     address = request.GET.get('address', None)
     answer_list=[]
 
-    if name is None :
+    if len(name) == 0 :
         message = 'من فضلك قم بإدخال الاسم'
         data = {'message': message}
         return JsonResponse(data)
-    if mobile is None:  
+    if len(name) == 0:  
         message = 'من فضلك قم بإدخال رقم الموبيل'
         data = {'message': message}
         return JsonResponse(data)
@@ -120,10 +120,12 @@ def save_user_answers(request):
     try:
         question = Question.objects.get(id =question_id )
     except Question.DoesNotExist:
-        question = Question.objects.get(id = 1 )        
+        question = Question.objects.get(id = 1 ) 
 
     if len(answers) == 0:
         message= "من فضلك قم باختيار الإجابات "
+        data = {'message': message}
+        return JsonResponse(data)
     else:    
         if len(answers) == 3:
             answer_one = answers[0]
@@ -157,10 +159,17 @@ def save_user_answers(request):
                 answer_one = QuestionAnswer.objects.get(id=answer_one),
             )
             user_question.save()    
-        message = 'success'    
-    pie_chart()    
-    data = {'message': 'message'}
-    return JsonResponse(data)
+        message = 'success'
+        an_one , an_one_count, an_two,an_two_count,an_three,an_three_count = pie_chart()
+        data = {'message': message,
+        'an_one':an_one,
+        'an_one_count':an_one_count,
+        'an_two':an_two,
+        'an_two_count':an_two_count,
+        'an_three':an_three,
+        'an_three_count':an_three_count,
+        }
+        return JsonResponse(data)
 
 
 def pie_chart():
@@ -171,10 +180,10 @@ def pie_chart():
     if answer_one_count:
         # labels.append(answer_one_count.first().answer_one)
         # data.append(answer_one_count.count)
-        an_one = answers[0]
-        an_one_count = answer_one_count.count
+        an_one = answers[0].answer
+        an_one_count = answer_one_count.count()
     else :
-        an_one = answers[0]
+        an_one = answers[0].answer
         an_one_count = 0
 
 
@@ -182,21 +191,19 @@ def pie_chart():
     if answer_two_count:
         # labels.append(answer_two_count.first().answer_one)
         # data.append(answer_two_count.count)
-        an_two = answers[1]
-        an_two_count = answer_two_count.count
+        an_two = answers[1].answer
+        an_two_count = answer_two_count.count()
     else :
-        an_two = answers[1]
+        an_two = answers[1].answer
         an_two_count = 0
 
     answer_three_count = UserQuestionAnswer.objects.filter(question=question.question, answer_three =answers[2].id)
     if answer_three_count:
         # labels.append(answer_three_count.first().answer_one)
         # data.append(answer_three_count.count)
-        an_three = answers[2]
-        an_three_count = answer_three_count.count
+        an_three = answers[2].answer
+        an_three_count = answer_three_count.count()
     else :
-        an_three = answers[2]
-        an_three_count = 0    
-
-
+        an_three = answers[2].answer
+        an_three_count = 0
     return an_one , an_one_count, an_two,an_two_count,an_three,an_three_count

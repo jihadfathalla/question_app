@@ -12,9 +12,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css" integrity="sha256-aa0xaJgmK/X74WM224KMQeNQC2xYKwlAt08oZqjeF0E=" crossorigin="anonymous" />
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-
-
-
 </head>
 
 <body>
@@ -26,7 +23,7 @@
 
 
       <h2 style="text-align: right;"> سؤال App</h2>
-      <p style="text-align: right;">تفضل بملئ البيانات</p>
+      <p id="enter" style="text-align: right;">تفضل بملئ البيانات</p>
       <h5 id="message" style="color: red;">
       قم بإدخال الاسم و رقم موبيلك على الأقل
       </h5>
@@ -34,7 +31,7 @@
       <div class="center" style="text-align: right; margin-right: 0%;">
         <ul class="nav nav-pills">
           <li><a onclick="view_answers()" href="#">النتائج</a></li>
-          <li><a onclick="view_question()" href="#">الأسئلة</a></li>
+          <li><a onclick="save_user_data()" href="#">الأسئلة</a></li>
           <li class="active"><a onclick="view_user()" href="#">البيانات الشخصية</a></li>
         </ul>
       </div>
@@ -122,17 +119,18 @@
 
       </div>
 
-
-
-
-
-
       </div>
 
+      <div class="row" >
+      <div class="col-md-4" style="text-align: left;" >
+            <button id="form_submit" type="submit" onclick="submit(event)" class="col-md-4 btn btn-primary" disabled>إرسال</button>
+      </div>
+      <br>
+      
       <div class="col-md-4" style="text-align: left;">
-            <button id="form_submit" type="submit" onclick="submit(event)" class="btn btn-primary">إرسال</button>
+        <button id="try" type="submit" onclick="test()" style="display: none;" class="col-md-4 btn btn-primary" >اعد المحاولة</button>
       </div>
-
+      </div>
     </form>
   </div>
 
@@ -143,12 +141,7 @@
     function view_user() {
       document.getElementById('user').style.display = 'block';
       document.getElementById('question').style.display = 'none';
-    }
-
-    function view_question() {
-      data = save_user_data()
-      document.getElementById('user').style.display = 'none';
-      document.getElementById('question').style.display = 'block';
+      document.getElementById('chart').style.display = 'none';
     }
 
 
@@ -161,7 +154,7 @@
     }
 
 
-    function save_user_data(e) {
+    function save_user_data() {
       answers_arr
       data = {
         'name': document.getElementById('id_name').value,
@@ -211,16 +204,24 @@
             document.getElementById('question_2').innerHTML = question_id
             document.getElementById('question_22').innerHTML = question_name
             document.getElementById('employee').innerHTML = user
+
+            document.getElementById('user').style.display = 'none';
+            document.getElementById('chart').style.display = 'none';
+            document.getElementById('question').style.display = 'block';
+            document.getElementById('form_submit').disabled = false
           }
           else{
               document.getElementById('message').innerHTML = result.message;
+              document.getElementById('user').style.display = 'block';
+              document.getElementById('question').style.display = 'none';
+              document.getElementById('chart').style.display = 'none';
+
           }
         }
       });
     }
 
     function submit() {
-      console.log(answers_arr)
       data = {
         'answers': answers_arr,
         'employee_id': document.getElementById('employee').innerHTML,
@@ -233,9 +234,26 @@
         contentType: "application/json",
         data: data,
         success: function (result) {
-          if (result.message == 'success') { }
+          if (result.message == 'success') {
+            document.getElementById('an_one').innerHTML = result.an_one
+            document.getElementById('an_two').innerHTML =result.an_two
+            document.getElementById('an_three').innerHTML =result.an_three
+
+            document.getElementById('an_one_count').innerHTML =result.an_one_count
+            document.getElementById('an_two_count').innerHTML =result.an_two_count
+            document.getElementById('an_three_count').innerHTML =result.an_three_count
+
+
+            document.getElementById('user').style.display = 'none';
+            document.getElementById('question').style.display = 'block';
+            document.getElementById('form_submit').disabled = true
+
+           }
           else {
-            document.getElementById('message').innerHTML = result.message
+            document.getElementById('message').style.display = 'block';
+            document.getElementById('question').style.display = 'block';
+            document.getElementById('message').innerHTML = result.message;
+
           }
         }
       })
@@ -249,7 +267,16 @@
     answer_one_count = document.getElementById('an_one_count').innerHTML
     answer_two_count = document.getElementById('an_two_count').innerHTML
     answer_three_count  =document.getElementById('an_three_count').innerHTML
-    console.log("&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&")
+
+
+    document.getElementById('message').style.display = 'none'; 
+    document.getElementById('enter').style.display = 'none'; 
+
+    document.getElementById('try').style.display = 'block';
+    document.getElementById('try').disabled = false
+
+    document.getElementById('form_submit').disabled = true
+
     document.getElementById('user').style.display = 'none';
     document.getElementById('question').style.display = 'none';
     document.getElementById('chart').style.display = 'block';
@@ -277,7 +304,20 @@
       }
    });
   }
+  function test(){
+    document.getElementById('message').style.display = 'block';
+    document.getElementById('message').innerHTML = "قم بإدخال اسم جديد ورقم موبيل جديد ";
+    document.getElementById('user').style.display = 'block';
+    document.getElementById('question').style.display = 'none';
+    document.getElementById('chart').style.display = 'none';
+    document.getElementById('try').style.display = 'none';
+    document.getElementById('try').disabled = true 
+    document.getElementById('form_submit').disabled = true
+
+
+  }
+
 </script>         
 </body>
 
-</html>
+</html> 
