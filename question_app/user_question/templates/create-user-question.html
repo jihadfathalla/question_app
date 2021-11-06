@@ -18,7 +18,6 @@
 
   <div class="container" style="text-align: right;">
     <form method="post" id="myform" validate-question-data-url="{% url 'question:user-data' %}">
-      {% csrf_token %}
       
 
 
@@ -44,6 +43,10 @@
         <p id="an_one_count">{{an_one_count}}</p>
         <p id="an_two_count">{{an_two_count}}</p>
         <p id="an_three_count">{{an_three_count}}</p>
+
+
+        <p id="femail_count">{{femail_count}}</p>
+        <p id="male_count">{{male_count}}</p>
       </div>
 
 
@@ -55,7 +58,6 @@
         <div class="user" style="display: block;" id="user">
           <div class="row" style="margin-left:0px;">
             <form method="POST" class="col-md-6 mb-0" id="myform">
-              {% csrf_token %}
               <div class="form-row" style="text-align: right;">
                 <div class="form-group col-md-12">
                   <label> <span style="color: red;">*</span>{{ user_form.name.label }}</label>
@@ -116,7 +118,11 @@
       <div id="chart" style="display: none;">
         <canvas id="myChart" height="416" style="display: block; width: 568px; height: 416px;" width="568"
         class="chartjs-render-monitor"></canvas>  
+      </div>
 
+      <div id="gender_chart" style="display: none;">
+        <canvas id="myChart_two" height="416" style="display: block; width: 568px; height: 416px;" width="568"
+        class="chartjs-render-monitor"></canvas>  
       </div>
 
       </div>
@@ -142,6 +148,8 @@
       document.getElementById('user').style.display = 'block';
       document.getElementById('question').style.display = 'none';
       document.getElementById('chart').style.display = 'none';
+      document.getElementById('gender_chart').style.display = 'none';
+
     }
 
 
@@ -207,6 +215,7 @@
 
             document.getElementById('user').style.display = 'none';
             document.getElementById('chart').style.display = 'none';
+            document.getElementById('gender_chart').style.display = 'none';
             document.getElementById('question').style.display = 'block';
             document.getElementById('form_submit').disabled = false
           }
@@ -215,6 +224,8 @@
               document.getElementById('user').style.display = 'block';
               document.getElementById('question').style.display = 'none';
               document.getElementById('chart').style.display = 'none';
+              document.getElementById('gender_chart').style.display = 'none';
+
 
           }
         }
@@ -243,6 +254,9 @@
             document.getElementById('an_two_count').innerHTML =result.an_two_count
             document.getElementById('an_three_count').innerHTML =result.an_three_count
 
+            document.getElementById('femail_count').innerHTML = result.femail_count
+            document.getElementById('male_count').innerHTML = result.male_count
+
 
             document.getElementById('user').style.display = 'none';
             document.getElementById('question').style.display = 'block';
@@ -268,8 +282,9 @@
     answer_two_count = document.getElementById('an_two_count').innerHTML
     answer_three_count  =document.getElementById('an_three_count').innerHTML
 
+    document.getElementById('message').innerHTML = " تحليل بيانات يوضح نسبة كل اختيار من اختيارات السؤال الذي قمت بالإجابة عليه و نسبة الإناث و الذكور الذين إجابوا نفس الإجابة أو لأخر سؤال تمت الإجابة عليه ان لم تقم بحل السؤال" 
+    document.getElementById('message').style.display = 'block'; 
 
-    document.getElementById('message').style.display = 'none'; 
     document.getElementById('enter').style.display = 'none'; 
 
     document.getElementById('try').style.display = 'block';
@@ -303,6 +318,10 @@
 
       }
    });
+   gender_chart()
+   document.getElementById('gender_chart').style.display = 'block';
+
+
   }
   function test(){
     document.getElementById('message').style.display = 'block';
@@ -317,6 +336,37 @@
 
   }
 
+
+
+  function gender_chart(){
+    femail_count = document.getElementById('femail_count').innerHTML
+    male_count = document.getElementById('male_count').innerHTML
+    document.getElementById('gender_chart').style.display = 'block';
+
+   var ctx = document.getElementById("myChart_two");
+   var myChart = new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+         labels: ['Male' ,'Femail'],
+         datasets: [{
+            label: '# of labels',
+            data: [male_count,femail_count],
+            backgroundColor: [
+               '#ff6384',
+               '#36a2eb',
+               '#ff9f40',
+               '#ffcd56'
+            ],
+            borderWidth: 1
+         }]
+      },
+      options: {
+         //cutoutPercentage: 40,
+         responsive: false,
+
+      }
+   });
+  }
 </script>         
 </body>
 

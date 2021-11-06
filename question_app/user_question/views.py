@@ -17,7 +17,7 @@ def create_user_question(request):
     user_form = CustomUserForm()
     question = Question.objects.all().first()
     answers = QuestionAnswer.objects.filter(question=question)
-    an_one , an_one_count, an_two,an_two_count,an_three,an_three_count = pie_chart()
+    an_one , an_one_count, an_two,an_two_count,an_three,an_three_count , male_count , femail_count = pie_chart()
 
     myContext = {
     "page_title":"سؤال app",
@@ -30,6 +30,8 @@ def create_user_question(request):
     'an_two_count':an_two_count,
     'an_three':an_three,
     'an_three_count':an_three_count,
+    'male_count':male_count,
+    'femail_count':femail_count
     }
     return render(request, 'create-user-question.html', myContext)
 
@@ -160,7 +162,7 @@ def save_user_answers(request):
             )
             user_question.save()    
         message = 'success'
-        an_one , an_one_count, an_two,an_two_count,an_three,an_three_count = pie_chart()
+        an_one , an_one_count, an_two,an_two_count,an_three,an_three_count ,male_count , femail_count = pie_chart()
         data = {'message': message,
         'an_one':an_one,
         'an_one_count':an_one_count,
@@ -168,6 +170,8 @@ def save_user_answers(request):
         'an_two_count':an_two_count,
         'an_three':an_three,
         'an_three_count':an_three_count,
+        'male_count':male_count,
+        'femail_count':femail_count
         }
         return JsonResponse(data)
 
@@ -206,4 +210,27 @@ def pie_chart():
     else :
         an_three = answers[2].answer
         an_three_count = 0
-    return an_one , an_one_count, an_two,an_two_count,an_three,an_three_count
+    male_count ,femail_count =  pie_chart_by_gender()    
+    return an_one , an_one_count, an_two,an_two_count,an_three,an_three_count ,male_count , femail_count
+
+
+
+
+def pie_chart_by_gender():
+    question = UserQuestionAnswer.objects.all().last()
+    if question.answer_one:
+        answer_male_count = UserQuestionAnswer.objects.filter(answer_one=question.answer_one,user__gender='M').count()
+        answer_femail_count = UserQuestionAnswer.objects.filter(answer_one=question.answer_one,user__gender='F').count()
+        return answer_male_count , answer_femail_count
+        
+    if question.answer_two:
+        answer_male_count = UserQuestionAnswer.objects.filter(answer_two=question.answer_two,user__gender='M').count()
+        answer_femail_count = UserQuestionAnswer.objects.filter(answer_two=question.answer_two,user__gender='F').count()
+        return answer_male_count , answer_femail_count
+        
+    if question.answer_three:
+        answer_male_count = UserQuestionAnswer.objects.filter(answer_three=question.answer_three,user__gender='M').count()
+        answer_femail_count = UserQuestionAnswer.objects.filter(answer_three=question.answer_three,user__gender='F').count()
+        return answer_male_count , answer_femail_count      
+    
+  

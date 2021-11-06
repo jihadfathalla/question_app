@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'user_question',
     'crispy_forms',
     'django.contrib.messages',
+    'rest_framework',
 ]
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
@@ -128,6 +129,12 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
+}
 
 STATICFILES_DIRS = [
     STATIC_DIR,
